@@ -1,3 +1,5 @@
+================== PARTIE 1 ==========================
+
 ---------------run_tp2_1.sh-----------
 
 #!/bin/bash
@@ -18,6 +20,50 @@ echo test
 #cd ./povray
 #convert glsbng.png -delay 6 -quality 100 glsbng.gif
 echo host:$HOSTNAME id:$SLURM_JOB_ID coucou je suis le post traitement
+
+
+
+--------------tp2_1.sh---------------
+#!/bin/bash
+
+#SBATCH --time=00:20
+#SBATCH --array=1-6%4
+
+
+numTache=$SLURM_ARRAY_TASK_ID
+numDeb=$(($numTache*10- 9))
+numFin=$(($numTache*10))
+heure=$(date +%H%M%S)
+#commande="./povray +A +W1024 +H768 +Lshare/povray-3.6/include/ +SF$numDeb +EF$numFin glsbng.ini"
+#cd ./povray
+#$commande
+echo $HOSTNAME $heure numTache= $numTache sf=$numDeb ef=$numFin
+
+
+
+
+================== PARTIE 2 ==========================
+
+---------------run_tp2_1.sh-----------
+
+#!/bin/bash
+
+jobBuildPictures=$(sbatch ./tp2_1.sh)
+
+jobPostTraitement=$(sbatch --dependency=afterany:$jobBuildPictures ./tp2_1postT.sh)
+
+
+--------------tp2_1postT.sh----------
+#!/bin/bash
+
+#SBATCH --time:00:20
+#SBATCH --ntasks=1
+
+cd /tmp
+mkdir $SLURM_JOB_ID
+tar czvf zzpovray.tar.gz ./$SLURM_JOB_ID/povray
+#convert glsbng.png -delay 6 -quality 100 glsbng.gif
+#echo host:$HOSTNAME id:$SLURM_JOB_ID coucou je suis le post traitement
 
 
 
