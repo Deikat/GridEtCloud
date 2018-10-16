@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --job-name=sleeping
+#SBATCH --time=00:20
+#SBATCH --ntasks=1
+
+echo "Bonjour je suis le job!"
+echo "Bonsoir, je suis le job !" >> fichier1
+echo "ReBonsoir, je suis le job" >> /fichier2
+
+______________________________________________________
+#!bin/bash
+
+idJob=$(sbatch $1| cut -d ' ' -f 4)
+echo $idJob
+-----------------------------------
+>>sh ./soumissionJob.sh job.sh
+
+______________________________________________________
+sbatch --array=0-5 multiJob.sh 
+
+______________________________________________________
+
