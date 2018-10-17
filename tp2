@@ -39,6 +39,8 @@ heure=$(date +%H%M%S)
 #$commande
 echo $HOSTNAME $heure numTache= $numTache sf=$numDeb ef=$numFin
 
+glsbng06.png 
+
 
 
 
@@ -82,4 +84,35 @@ heure=$(date +%H%M%S)
 #cd ./povray
 #$commande
 echo $HOSTNAME $heure numTache= $numTache sf=$numDeb ef=$numFin
+
+
+
+**********************
+test.sh
+
+#!/bin/bash
+
+#SBATCH --time=00:20
+#SBATCH --ntasks=1
+
+#numTache=$SLURM_ARRAY_TASK_ID
+#numDeb=$(($numTache * 10-9))
+#numFin=$(($numTache * 10))
+
+cd /tmp
+mkdir "$SLURM_JOB_ID"
+cd "$SLURM_JOB_ID"
+
+tar xzvf /home/mahenry8/zzpovray.tar.gz >logs.log
+echo 0000 je suis $SLURM_JOB_ID et je suis sur $HOSTNAME 0000
+
+cd ./povray
+./povray +A +W10 +H10 +Lshare/povray-3.6/include/ +SF1 +EF10 glsbng.ini >logs2.log
+
+mv glsbng*.png
+
+echo 0000 je suis $SLURM_JOB_ID et je suis sur $HOSTNAME 0000
+#cd /tmp
+#rm -r "$SLURM_JOB_ID"
+
 
