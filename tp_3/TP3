@@ -1,0 +1,97 @@
+Grid et CLoud Computing
+TP3 : Lancer de rayons dans les nuages
+
+
+Etape 1:
+Instances1
+	- ressources utilisées :	m1.tiny (1 VCPU, 512 MB RAM, 1 G Size) 
+	- IP : 				10.0.42.14
+	- login :			'cirros'
+	- password par défaut :		'gocubsgo'
+pas de ping possible
+
+
+Etape 2:
+ip flotante : 192.168.5.33
+Pas de connection par ping ou par ssh
+Règles :
+	
+	default
+		ALLOW IPv6 to ::/0
+		ALLOW IPv6 from default
+		ALLOW IPv4 to 0.0.0.0/0
+		ALLOW IPv4 from default
+
+
+Etape 3:
+règles:
+	Direction	Ether Type	IP Protocol	Port Range	Remote IP Prefix Remote Security Group
+	Egress 		IPv4 	ICMP 	Any 		0.0.0.0/0 	- 	
+	Egress 		IPv4 	TCP 	1 - 65535 	0.0.0.0/0 	- 	
+	Egress 		IPv4 	UDP 	1 - 65535 	0.0.0.0/0 	- 	
+	Ingress 	IPv4 	ICMP 	Any 		0.0.0.0/0 	- 	
+	Ingress 	IPv4 	TCP 	22 (SSH) 	0.0.0.0/0 	- 
+
+accessible par ping et par ssh
+
+Etape 4:
+passphrase = motdepasse
+The key's randomart image is:
++---[RSA 2048]----+
+|           .   .o|
+|          . o .. |
+|       . o.. ..  |
+|     .  ++ . +   |
+|    o ..S o o o  |
+|   + +oo = . .   |
+|    *++.. + .    |
+|    ..+=oE * o   |
+|     o.*O+oo@=.  |
++----[SHA256]-----+
+
+ssh -i tpcloud centos@192.168.5.50
+
+Etape 5 :
+# sudo -i
+# export http_proxy=http://proxy.dsi.uca.fr:8080
+# yum install centos-release-openstack-queens
+# yum install python-openstackclient
+
+# source mahenry8-openrc.sh
+# openstack server list
+
+
+Etape 6:
+sur console admin :
+# sudo -i
+# export http_proxy=http://proxy.dsi.uca.fr:8080
+# yum install python-swiftclient
+# exit
+
+- Creation instance :
+Choisir image suffisament grande pour l'os
+openstack server create --flavor m1.small --image CentOS7 --security-group Groupe1 --key-name ClePublique1 etape6
+
+- terminer l'instance :
+openstack server stop etape6
+
+- transferer un objet :
+creer conteneur : openstack container create MonConteneur
+creer objet : touch MonObjet
+transfert : swift upload MonConteneur MonObjet
+check : swift list MonConteneur qui affiche "MonObjet"
+
+
+
+
+Etape 7:
+indication : utiliser commande stack et être authentifié 
+(générer token d'authentification par openstack sur console :
+openstack issue
+swift --os-storage-url ...
+) 
+
+Sur pc : creer conteneur et mettre le tar.gz dedans
+console : swift download Povray zzpovray.tar.gz
+
+

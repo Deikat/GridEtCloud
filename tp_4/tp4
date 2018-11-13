@@ -1,0 +1,28 @@
+
+Préambule :
+
+export HADOOP_PREFIX=/tmp/ZZ3_Cloud/hadoop-2.8.5/
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0
+export HADOOP_CLASSPATH=$JAVA_HOME/lib/tools.jar
+
+export PATH="$HADOOP_PREFIX/bin:$PATH"
+export CLASSPATH="$(yarn classpath):$CLASSPATH"
+
+TP
+1. Préparation des données :
+
+2. Word Count :
+
+hadoop fs -cat hdfs/output/part-r-00000 | head
+
+
+3. Richesse du vocabulaire
+Voir fichier WordCount.java
+wc -l hdfs/output_mproust/part-r-00000
+34 127
+
+wc -l hdfs/output_vhugo/part-r-00000
+29 230
+
+4. Recherche d'anagrammes
+
