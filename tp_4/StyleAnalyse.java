@@ -11,26 +11,37 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class WordCount {
+public class StyleAnalyse {
 
   public static class TokenizerMapper
        extends Mapper<Object, Text, Text, IntWritable>{
 
     private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
+    
+    // Creation des deux cles resultats
+    private Text Max = new Text();
+    private Text Mean = new Text();
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
 
-	  // Suppression de la ponctuation, des espaces inutiles, Mise en minuscules
-	  String myText = value.toString().replaceAll("\\p{Punct}"," ").replaceAll("[^\\p{L}\\s\\s]", "").toLowerCase();
-	  StringTokenizer itr = new StringTokenizer(myText);
+	  // Separation du texte en phrases
+	  StringTokenizer itr = new StringTokenizer(value.toString(),".");
+	  
 	  while (itr.hasMoreTokens()) {
-		word.set(itr.nextToken());
+		// Phrase courante
+		String phrase = itr.nextToken();
 		
-		// Mots de longueur supérieure ou égale à 3
-		if(word.toString().length() >=3)
-			context.write(word, one);
+		// Initialisation des textes des clés
+		Max.set("Longueur Max");
+		Mean.set("Longueur Moyenne");
+		
+		// Comptage du nombre de mots en coupant la phrase courante par les espaces
+		IntWritable nbWords = new IntWritable(phrase.toString().trim().split(" ").length);
+		
+		// Ecriture des valeurs et des cles
+		context.write(Max, nbWords);
+		context.write(Mean, nbWords);
 	  }
     }
   }
@@ -38,23 +49,46 @@ public class WordCount {
   public static class IntSumReducer
        extends Reducer<Text,IntWritable,Text,IntWritable> {
     private IntWritable result = new IntWritable();
+    
 
     public void reduce(Text key, Iterable<IntWritable> values,
                        Context context
                        ) throws IOException, InterruptedException {
-      int sum = 0;
-      for (IntWritable val : values) {
-        sum += val.get();
+						   
+	  // Cas ou la cle est celle du max
+	  if(key.toString().equals("Longueur Max")){
+		  int max = 0;
+		  
+		  // Recherche du max parmi toutes les valeurs
+		  for (IntWritable val : values) {
+			  max = Math.max(val.get(),max);
+		  }
+		  // Ecriture du max dans le contexte
+		  result.set(max);
+		  context.write(key, result);
+	  }
+	  // Cas ou la cle est celle de la moyenne
+	  else{
+		  int nbSentences= 0;
+		  int nbMots = 0;
+		  
+		  // Calcul du nombre de mots et du nombre de phrases
+		  for (IntWritable val : values) {
+			  nbMots += val.get();
+			  nbSentences++;
+		  }
+		  
+		  // Calcul de la moyenne et son ecriture dans le contexte
+		  result.set(nbMots/nbSentences);
+		  context.write(key, result);
       }
-      result.set(sum);
-      context.write(key, result);
     }
   }
 
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(WordCount.class);
+    Job job = Job.getInstance(conf, "style analyse");
+    job.setJarByClass(StyleAnalyse.class);
     job.setMapperClass(TokenizerMapper.class);
 //    job.setCombinerClass(IntSumReducer.class);
     job.setReducerClass(IntSumReducer.class);
@@ -65,3 +99,4 @@ public class WordCount {
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
+

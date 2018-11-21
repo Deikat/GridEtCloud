@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class AnagrammeCount {
+public class AnagramCount {
 
   public static class TokenizerMapper
        extends Mapper<Object, Text, Text, IntWritable>{
@@ -21,14 +21,23 @@ public class AnagrammeCount {
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
-	  String monMot = value.toString().replaceAll("\\p{Punct}"," ").replaceAll("[^\\p{ASCII}\\s\\s]", "").toLowerCase();
-	  StringTokenizer itr = new StringTokenizer(monMot);
+						
+	  /* Suppression de la ponctuation, 
+	  *  Convertion des lettres accentuées en lettres sans accents,
+	  *  Suppression des espaces inutiles
+	  *  Mise en minuscules des mots
+	  */
+	  String myText = value.toString().replaceAll("\\p{Punct}"," ").replaceAll("[^\\p{ASCII}\\s\\s]", "").toLowerCase();
+	  StringTokenizer itr = new StringTokenizer(myText);
 	  while (itr.hasMoreTokens()) {
 		word.set(itr.nextToken());
 		
-		StringBuilder mot = new StringBuilder(); 
-		mot.append(word.toString());
-		if(word.toString().length() >=4 && word.toString().equals(mot.reverse().toString()))
+		// StringBuilder pour utiliser reverse()
+		StringBuilder wordStringBuilder = new StringBuilder(); 
+		wordStringBuilder.append(word.toString());
+		
+		// Mot de longueur supérieure ou égale à 4 et égalité entre le mot et son miroir
+		if(word.toString().length() >=4 && word.toString().equals(wordStringBuilder.reverse().toString()))
 			context.write(word, one);
 	  }
     }
@@ -52,8 +61,8 @@ public class AnagrammeCount {
 
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(AnagrammeCount.class);
+    Job job = Job.getInstance(conf, "anagram count");
+    job.setJarByClass(AnagramCount.class);
     job.setMapperClass(TokenizerMapper.class);
 //    job.setCombinerClass(IntSumReducer.class);
     job.setReducerClass(IntSumReducer.class);

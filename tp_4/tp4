@@ -25,4 +25,37 @@ wc -l hdfs/output_vhugo/part-r-00000
 29 230
 
 4. Recherche d'anagrammes
+vhugo : 
+alla	133
+ecce	6
+elle	3187
+erre	3
+lebel	1
+musum	2
+serres	1
+sexes	3
 
+mproust :
+alla	41
+anna	2
+aviva	1
+elle	9327
+erre	2
+essayasse	1
+ingni	1
+madam	1
+selles	1
+semes	2
+serres	11
+sexes	2
+toot	1
+
+
+5. Style de phrase
+vhugo :
+Longueur Max	29
+Longueur Moyenne	7
+
+mproust :
+Longueur Max	29
+Longueur Moyenne	8
